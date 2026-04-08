@@ -29,8 +29,9 @@ namespace TodoApp.Controllers
                 _todos.Add(todo);
                 return Ok(todo);
             }
-
         }
+
+
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
@@ -62,11 +63,10 @@ namespace TodoApp.Controllers
                 return Ok(todo);
             }
         }
-
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var todo = _todos. FirstOrDefault(x => x.Id == id);
+            var todo = _todos.FirstOrDefault(x => x.Id == id);
             if (todo == null)
             {
                 return NotFound("Yapılacaklar Listesi Bulunamadı.");
@@ -74,8 +74,9 @@ namespace TodoApp.Controllers
             else
             {
                 _todos.Remove(todo);
-                return Ok("Yapılacaklar Listesi Silindi.");
+                return Ok("Yapılacaklar Listesinden Silindi.");
             }
+
         }
     }
 }
