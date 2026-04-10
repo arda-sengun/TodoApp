@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TodoApp.Data;
 using TodoApp.Models;
 
 namespace TodoApp.Controllers
@@ -8,16 +10,20 @@ namespace TodoApp.Controllers
     [ApiController]
     public class TodoController : ControllerBase
     {
-        private static List<Models.TodoItem> _todos = new List<Models.TodoItem>();
+        private readonly TodoDbContext _context;
+        public TodoController(TodoDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_todos);
+            return Ok(await _context.TodoItems.ToListAsync());
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] TodoItem todo)
+        public async Task<IActionResult> Create([FromBody] TodoItem todo)
         {
             if (todo == null)
             {
@@ -25,17 +31,17 @@ namespace TodoApp.Controllers
             }
             else
             {
-                todo.Id = _todos.Count + 1;
-                _todos.Add(todo);
+               await _context.TodoItems.AddAsync(todo);
+                await _context.SaveChangesAsync();
                 return Ok(todo);
             }
         }
 
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var todo = _todos.FirstOrDefault(x => x.Id == id);
+            var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null)
             {
                 return NotFound("Yapılacaklar Listesi Bulunamadı.");
@@ -47,9 +53,9 @@ namespace TodoApp.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] TodoItem updatedTodo)
+        public async Task<IActionResult> Update(int id, [FromBody] TodoItem updatedTodo)
         {
-            var todo = _todos.FirstOrDefault(x => x.Id == id);
+            var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null)
             {
                 return NotFound("Yapılacaklar Listesi Bulunamadı.");
@@ -60,20 +66,22 @@ namespace TodoApp.Controllers
                 todo.Icerik = updatedTodo.Icerik;
                 todo.OnemDerecesi = updatedTodo.OnemDerecesi;
                 todo.Tamamlandi = updatedTodo.Tamamlandi;
+                await _context.SaveChangesAsync();
                 return Ok(todo);
             }
         }
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var todo = _todos.FirstOrDefault(x => x.Id == id);
+            var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null)
             {
                 return NotFound("Yapılacaklar Listesi Bulunamadı.");
             }
             else
             {
-                _todos.Remove(todo);
+                _context.TodoItems.Remove(todo);
+                await _context.SaveChangesAsync();
                 return Ok("Yapılacaklar Listesinden Silindi.");
             }
 
