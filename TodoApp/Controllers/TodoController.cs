@@ -17,7 +17,6 @@ namespace TodoApp.Controllers
             _context = context;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -70,7 +69,7 @@ namespace TodoApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var todo = await _context.TodoItems.FindAsync(id);
+            var todo = _context.TodoItems.Find(id);
             if (todo == null)
             {
                 return NotFound();
