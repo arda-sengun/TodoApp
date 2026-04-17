@@ -20,7 +20,16 @@ namespace TodoApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _context.TodoItems.ToListAsync());
+            var todos = await _context.TodoItems.ToListAsync();
+            var todoDtos = todos.Select(todo => new TodoItemDto
+            {
+                Baslik = todo.Baslik,
+                Icerik = todo.Icerik,
+                OnemDerecesi = todo.OnemDerecesi,
+                Tamamlandi = todo.Tamamlandi
+            });
+
+           return Ok(todoDtos);
         }
 
         [HttpGet("{id}")]
@@ -31,23 +40,39 @@ namespace TodoApp.Controllers
             {
                 return NotFound();
             }
-            return Ok(todo);
+            var todoDto = new TodoItemDto
+            {
+                Baslik = todo.Baslik,
+                Icerik = todo.Icerik,
+                OnemDerecesi = todo.OnemDerecesi,
+                Tamamlandi = todo.Tamamlandi
+            };
+
+            return Ok(todoDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TodoItem todo)
+        public async Task<IActionResult> Create([FromBody] TodoItemDto todoDto)
         {
-            if (todo == null)
+            if (todoDto == null)
             {
                 return BadRequest();
             }
+            var todo = new TodoItem
+            {
+                Baslik = todoDto.Baslik,
+                Icerik = todoDto.Icerik,
+                OnemDerecesi = todoDto.OnemDerecesi,
+                Tamamlandi = todoDto.Tamamlandi
+            };
+
             _context.TodoItems.Add(todo);
             await _context.SaveChangesAsync();
-            return Ok(todo);
+            return Ok(todoDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TodoItem updatedTodo)
+        public async Task<IActionResult> Update(int id, [FromBody] TodoItemDto todoItemDto)
         {
             var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null)
@@ -56,20 +81,20 @@ namespace TodoApp.Controllers
             }
             else
             {
-                todo.Baslik = updatedTodo.Baslik;
-                todo.Icerik = updatedTodo.Icerik;
-                todo.OnemDerecesi = updatedTodo.OnemDerecesi;
-                todo.Tamamlandi = updatedTodo.Tamamlandi;
+                todo.Baslik = todoItemDto.Baslik;
+                todo.Icerik = todoItemDto.Icerik;
+                todo.OnemDerecesi = todoItemDto.OnemDerecesi;
+                todo.Tamamlandi = todoItemDto.Tamamlandi;
 
                 await _context.SaveChangesAsync();
-                return Ok(todo);
+                return Ok(todoItemDto);
             }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var todo = _context.TodoItems.Find(id);
+            var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null)
             {
                 return NotFound();
