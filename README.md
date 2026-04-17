@@ -9,6 +9,7 @@ Bu repo, "kas hafızası" oluşturma odaklı bir öğrenme sürecini yansıtmakt
 1. **Aşama (Iteration 1):** Temel Controller yapısı, Dependency Injection ve in-memory List tabanlı veri yönetimi kurgulandı.
 2. **Aşama (Iteration 2):** Kod bakmadan tekrar yazılarak mimari yapı (Routing, HTTP Verbs, Status Codes) pekiştirildi.
 3. **Aşama (Iteration 3):** Entity Framework Core entegrasyonu tamamlandı. In-memory list yapısından SQL Server veritabanına geçildi. DbContext, Migration ve async CRUD operasyonları uygulandı.
+4. **Aşama (Iteration 4):** DTO (Data Transfer Object) pattern'i uygulandı. Entity'ler direkt yerine DTO'lar üzerinden veri alışverişi yapılmaktadır.
 
 ## 🛠 Kullanılan Teknolojiler
 
@@ -16,6 +17,7 @@ Bu repo, "kas hafızası" oluşturma odaklı bir öğrenme sürecini yansıtmakt
 * **ASP.NET Core Controllers**
 * **Entity Framework Core 8.0** (SQL Server)
 * **Swagger / OpenAPI** (API Test ve Dokümantasyon)
+* **DTO Pattern** (Data Transfer Object)
 
 ## 📌 Öğrenilen Kazanımlar
 
