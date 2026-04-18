@@ -23,13 +23,14 @@ namespace TodoApp.Controllers
             var todos = await _context.TodoItems.ToListAsync();
             var todoDtos = todos.Select(todo => new TodoItemDto
             {
+                Id = todo.Id,
                 Baslik = todo.Baslik,
                 Icerik = todo.Icerik,
                 OnemDerecesi = todo.OnemDerecesi,
                 Tamamlandi = todo.Tamamlandi
             });
 
-           return Ok(todoDtos);
+            return Ok(todoDtos);
         }
 
         [HttpGet("{id}")]
@@ -42,6 +43,7 @@ namespace TodoApp.Controllers
             }
             var todoDto = new TodoItemDto
             {
+                Id = todo.Id,
                 Baslik = todo.Baslik,
                 Icerik = todo.Icerik,
                 OnemDerecesi = todo.OnemDerecesi,
@@ -52,12 +54,18 @@ namespace TodoApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TodoItemDto todoDto)
+        public async Task<IActionResult> Create([FromBody] CreateTodoDto todoDto)
         {
             if (todoDto == null)
             {
                 return BadRequest();
             }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var todo = new TodoItem
             {
                 Baslik = todoDto.Baslik,
@@ -65,30 +73,50 @@ namespace TodoApp.Controllers
                 OnemDerecesi = todoDto.OnemDerecesi,
                 Tamamlandi = todoDto.Tamamlandi
             };
-
             _context.TodoItems.Add(todo);
             await _context.SaveChangesAsync();
-            return Ok(todoDto);
+
+            var todoItemDto = new TodoItemDto()
+            {
+                Id = todo.Id,
+                Baslik = todo.Baslik,
+                Icerik = todo.Icerik,
+                OnemDerecesi = todo.OnemDerecesi,
+                Tamamlandi = todo.Tamamlandi
+            };
+            return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todoItemDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TodoItemDto todoItemDto)
+        public async Task<IActionResult> Update(int id, [FromBody] CreateTodoDto createTodoDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null)
             {
                 return NotFound();
             }
-            else
-            {
-                todo.Baslik = todoItemDto.Baslik;
-                todo.Icerik = todoItemDto.Icerik;
-                todo.OnemDerecesi = todoItemDto.OnemDerecesi;
-                todo.Tamamlandi = todoItemDto.Tamamlandi;
 
-                await _context.SaveChangesAsync();
-                return Ok(todoItemDto);
-            }
+            todo.Baslik = createTodoDto.Baslik;
+            todo.Icerik = createTodoDto.Icerik;
+            todo.OnemDerecesi = createTodoDto.OnemDerecesi;
+            todo.Tamamlandi = createTodoDto.Tamamlandi;
+
+            await _context.SaveChangesAsync();
+
+            var todoItemDto = new TodoItemDto()
+            {
+                Id = todo.Id,
+                Baslik = todo.Baslik,
+                Icerik = todo.Icerik,
+                OnemDerecesi = todo.OnemDerecesi,
+                Tamamlandi = todo.Tamamlandi
+            };
+
+            return Ok(todoItemDto);
         }
 
         [HttpDelete("{id}")]
